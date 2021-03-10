@@ -115,8 +115,8 @@
    "resources": [
       {
          "type": "Microsoft.Resources/deployments",
-         "apiVersion": "${azure.apiVersion}",
-         "name": "${post.deploy.ssl.config.start}",
+         "apiVersion": "2020-06-01",
+         "name": "post.deploy.ssl.config.start",
          "properties": {
             "mode": "Incremental",
             "template": {
@@ -128,12 +128,12 @@
       },
       {
          "type": "Microsoft.Compute/virtualMachines/extensions",
-         "name": "[if(equals(copyIndex(),0),concat(parameters('adminVMName'),'/newuserscript'),concat(variables('managedServerPrefix'), copyIndex(),'/newuserscript'))]",
-         "apiVersion": "${azure.apiVersion}",
+         "name": "[if(equals(copyIndex(),0),concat(parameters('adminVMName'),'/newuserscript'),concat(parameters('managedServerPrefix'), copyIndex(),'/newuserscript'))]",
+         "apiVersion": "2020-06-01",
          "location": "[parameters('location')]",
          "copy": {
                 "name": "virtualMachineExtensionLoop",
-                "count": "[parameters('numberOfExistingNodes')]"
+                "count": "[add(parameters('numberOfExistingNodes'),1)]"
          },
          "properties": {
             "publisher": "Microsoft.Azure.Extensions",
@@ -152,10 +152,10 @@
       },
       {
          "type": "Microsoft.Resources/deployments",
-         "apiVersion": "${azure.apiVersion}",
-         "name": "${post.deploy.ssl.config.end}",
+         "apiVersion": "2020-06-01",
+         "name": "post.deploy.ssl.config.end",
          "dependsOn": [
-            "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('adminVMName'), 'newuserscript')]"
+            "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('numberOfExistingNodes'), 'newuserscript')]"
          ],
          "properties": {
             "mode": "Incremental",
