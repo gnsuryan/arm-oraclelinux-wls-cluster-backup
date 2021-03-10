@@ -108,6 +108,7 @@
    },
    "variables": {
       "const_hyphen": "-",
+      "const_managedVMPrefix": "[concat(parameters('managedServerPrefix'),'VM')]",
       "const_wlsHome": "/u01/app/wls/install/oracle/middleware/oracle_home",
       "const_wlsDomainPath": "/u01/domains",
       "name_scriptFile": "configureCustomAdminSSL.sh"
@@ -128,7 +129,7 @@
       },
       {
          "type": "Microsoft.Compute/virtualMachines/extensions",
-         "name": "[if(equals(copyIndex(),0),concat(parameters('adminVMName'),'/newuserscript'),concat(parameters('managedServerPrefix'), copyIndex(),'/newuserscript'))]",
+         "name": "[if(equals(copyIndex(),0),concat(parameters('adminVMName'),'/newuserscript'),concat(variables('const_managedVMPrefix'), copyIndex(),'/newuserscript'))]",
          "apiVersion": "2020-06-01",
          "location": "[parameters('location')]",
          "copy": {
@@ -147,7 +148,7 @@
                ]
             },
             "protectedSettings": {
-				"commandToExecute": "[concat('sh',' ',variables('name_scriptFile'),' ',parameters('adminVMName'),' ',parameters('wlsDomainName'),' ',parameters('wlsUserName'),' ',parameters('wlsPassword'),' ',variables('const_wlsHome'),' ',variables('const_wlsDomainPath'),' ',parameters('managedServerPrefix'),' ',parameters('numberOfExistingNodes'),' ',parameters('isCoherenceEnabled'),' ',copyIndex(),' ',parameters('aadsSettings').enable,' ',if(parameters('aadsSettings').enable, parameters('aadsSettings').certificateBase64String, 'null'),' ', parameters('customSSLSettings').enable,' ',if(parameters('customSSLSettings').enable,parameters('customSSLSettings').customIdentityKeyStoreBase64String, 'null'),' ',if(parameters('customSSLSettings').enable,parameters('customSSLSettings').customIdentityKeyStorePassPhrase, 'null'),' ',if(parameters('customSSLSettings').enable,parameters('customSSLSettings').customIdentityKeyStoreType, 'null'),' ',if(parameters('customSSLSettings').enable,parameters('customSSLSettings').customTrustKeyStoreBase64String, 'null'),' ',if(parameters('customSSLSettings').enable,parameters('customSSLSettings').customTrustKeyStorePassPhrase, 'null'),' ',if(parameters('customSSLSettings').enable,parameters('customSSLSettings').customTrustKeyStoreType, 'null'),' ',if(parameters('customSSLSettings').enable,parameters('customSSLSettings').privateKeyAlias, 'null'),' ',if(parameters('customSSLSettings').enable,parameters('customSSLSettings').privateKeyPassPhrase, 'null'))]"            }
+				"commandToExecute": "[concat('sh',' ',variables('name_scriptFile'),' ',parameters('adminVMName'),' ',parameters('wlsDomainName'),' ',parameters('wlsUserName'),' ',parameters('wlsPassword'),' ',variables('const_wlsHome'),' ',variables('const_wlsDomainPath'),' ',parameters('numberOfExistingNodes'),' ',parameters('isCoherenceEnabled'),' ',copyIndex(),' ',parameters('aadsSettings').enable,' ',if(parameters('aadsSettings').enable, parameters('aadsSettings').certificateBase64String, 'null'),' ', parameters('customSSLSettings').enable,' ',if(parameters('customSSLSettings').enable,parameters('customSSLSettings').customIdentityKeyStoreBase64String, 'null'),' ',if(parameters('customSSLSettings').enable,parameters('customSSLSettings').customIdentityKeyStorePassPhrase, 'null'),' ',if(parameters('customSSLSettings').enable,parameters('customSSLSettings').customIdentityKeyStoreType, 'null'),' ',if(parameters('customSSLSettings').enable,parameters('customSSLSettings').customTrustKeyStoreBase64String, 'null'),' ',if(parameters('customSSLSettings').enable,parameters('customSSLSettings').customTrustKeyStorePassPhrase, 'null'),' ',if(parameters('customSSLSettings').enable,parameters('customSSLSettings').customTrustKeyStoreType, 'null'),' ',if(parameters('customSSLSettings').enable,parameters('customSSLSettings').privateKeyAlias, 'null'),' ',if(parameters('customSSLSettings').enable,parameters('customSSLSettings').privateKeyPassPhrase, 'null'))]"            }
          }
       },
       {

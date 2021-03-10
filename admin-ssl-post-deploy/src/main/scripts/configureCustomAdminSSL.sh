@@ -10,7 +10,7 @@ function echo_stderr ()
 #Function to display usage message
 function usage()
 {
-  echo_stderr "./configureCustomAdminSSL.sh <adminVMName> <wlsDomainName> <wlsUserName> <wlsPassword> <oracleHome> <wlsDomainPath> <managedServerPrefix> <numberOfExistingNodes> <isCoherenceEnabled> <vmIndex> <enableAAD> <wlsADSSLCer> <isCustomSSLenabled> <customIdentityKeyStoreBase64String> <customIdentityKeyStorePassPhrase> <customIdentityKeyStoreType> <customTrustKeyStoreBase64String> <customTrustKeyStorePassPhrase> <customTrustKeyStoreType> <privateKeyAlias> <privateKeyPassPhrase>"
+  echo_stderr "./configureCustomAdminSSL.sh <adminVMName> <wlsDomainName> <wlsUserName> <wlsPassword> <oracleHome> <wlsDomainPath> <numberOfExistingNodes> <isCoherenceEnabled> <vmIndex> <enableAAD> <wlsADSSLCer> <isCustomSSLenabled> <customIdentityKeyStoreBase64String> <customIdentityKeyStorePassPhrase> <customIdentityKeyStoreType> <customTrustKeyStoreBase64String> <customTrustKeyStorePassPhrase> <customTrustKeyStoreType> <privateKeyAlias> <privateKeyPassPhrase>"
 }
 
 function installUtilities()
@@ -68,11 +68,6 @@ function validateInput()
         then
             echo_stderr "wlsADSSLCer is required. "
         fi
-    fi
-
-    if [[ -z "$managedServerPrefix" ]];
-    then
-        echo_stderr "managedServerPrefix is required. "
     fi
 
     if [[ -z "$numberOfExistingNodes" ]];
@@ -379,34 +374,31 @@ export wlsPassword=$4
 export oracleHome=$5
 export wlsDomainPath=$6
 
-export managedServerPrefix="${7}"
-export numberOfExistingNodes="${8}"
+export numberOfExistingNodes="${7}"
 
-export isCoherenceEnabled="${9}"
+export isCoherenceEnabled="${8}"
 isCoherenceEnabled="${isCoherenceEnabled,,}"
 
-export vmIndex="${10}"
+export vmIndex="${9}"
 
-export managedServerName="$managedServerPrefix$vmIndex"
-
-export enableAAD="${11}"
+export enableAAD="${10}"
 enableAAD="${enableAAD,,}"
 
-export wlsADSSLCer="${12}"
+export wlsADSSLCer="${11}"
 
-export isCustomSSLEnabled="${13}"
+export isCustomSSLEnabled="${12}"
 isCustomSSLEnabled="${isCustomSSLEnabled,,}"
 
 if [ "${isCustomSSLEnabled,,}" == "true" ];
 then
-    export customIdentityKeyStoreBase64String="${14}"
-    export customIdentityKeyStorePassPhrase="${15}"
-    export customIdentityKeyStoreType="${16}"
-    export customTrustKeyStoreBase64String="${17}"
-    export customTrustKeyStorePassPhrase="${18}"
-    export customTrustKeyStoreType="${19}"
-    export privateKeyAlias="${20}"
-    export privateKeyPassPhrase="${21}"
+    export customIdentityKeyStoreBase64String="${13}"
+    export customIdentityKeyStorePassPhrase="${14}"
+    export customIdentityKeyStoreType="${15}"
+    export customTrustKeyStoreBase64String="${16}"
+    export customTrustKeyStorePassPhrase="${17}"
+    export customTrustKeyStoreType="${18}"
+    export privateKeyAlias="${19}"
+    export privateKeyPassPhrase="${20}"
 fi
 
 export wlsAdminPort=7001
