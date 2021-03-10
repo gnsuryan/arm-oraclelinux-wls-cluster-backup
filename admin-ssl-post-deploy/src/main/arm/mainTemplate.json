@@ -155,7 +155,7 @@
          "apiVersion": "2020-06-01",
          "name": "post.deploy.ssl.config.end",
          "dependsOn": [
-            "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('numberOfExistingNodes'), 'newuserscript')]"
+            "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('managedServerPrefix'), parameters('numberOfExistingNodes'), 'newuserscript')]"
          ],
          "properties": {
             "mode": "Incremental",
