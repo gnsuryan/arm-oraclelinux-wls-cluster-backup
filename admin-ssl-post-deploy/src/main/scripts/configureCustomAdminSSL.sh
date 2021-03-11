@@ -10,7 +10,7 @@ function echo_stderr ()
 #Function to display usage message
 function usage()
 {
-  echo_stderr "./configureCustomAdminSSL.sh <adminVMName> <wlsDomainName> <wlsUserName> <wlsPassword> <oracleHome> <wlsDomainPath> <numberOfExistingNodes> <isCoherenceEnabled> <vmIndex> <enableAAD> <wlsADSSLCer> <isCustomSSLenabled> <customIdentityKeyStoreBase64String> <customIdentityKeyStorePassPhrase> <customIdentityKeyStoreType> <customTrustKeyStoreBase64String> <customTrustKeyStorePassPhrase> <customTrustKeyStoreType> <privateKeyAlias> <privateKeyPassPhrase>"
+  echo_stderr "./configureCustomAdminSSL.sh <adminVMName> <wlsDomainName> <wlsUserName> <wlsPassword> <oracleHome> <wlsDomainPath> <managedServerVMName> <managedServerPrefix> <numberOfExistingNodes> <isCoherenceEnabled> <vmIndex> <enableAAD> <wlsADSSLCer> <isCustomSSLenabled> <customIdentityKeyStoreBase64String> <customIdentityKeyStorePassPhrase> <customIdentityKeyStoreType> <customTrustKeyStoreBase64String> <customTrustKeyStorePassPhrase> <customTrustKeyStoreType> <privateKeyAlias> <privateKeyPassPhrase>"
 }
 
 function installUtilities()
@@ -68,6 +68,16 @@ function validateInput()
         then
             echo_stderr "wlsADSSLCer is required. "
         fi
+    fi
+
+    if [[ -z "$managedServerVMName" ]];
+    then
+        echo_stderr "managedServerVMName is required. "
+    fi
+
+    if [[ -z "$managedServerPrefix" ]];
+    then
+        echo_stderr "managedServerPrefix is required. "
     fi
 
     if [[ -z "$numberOfExistingNodes" ]];
@@ -313,23 +323,15 @@ function restartManagedServer()
 {
     echo "Restart managed server"
     cat <<EOF >${SCRIPT_PWD}/restart-managedServer.py
-import os
 
 connect('$wlsUserName','$wlsPassword','t3://$wlsAdminURL')
 cd('/')
-current_m=''
-machines = cmo.getMachines()
-for m in machines:
-    hostname = os.environ['HOSTNAME']
-    nm = m.getNodeManager()
-    if nm.getListenAddress() in hostname:
-        current_m=m
 
 servers = cmo.getServers()
 for s in servers:
     name = s.getName()
     if name != 'AdminServer':
-        ref = getMBean('/Servers/'+name+'/Machine/'+current_m.getName())
+        ref = getMBean('/Servers/'+name+'/Machine/$managedServerVMName')
         if ref != None:
             shutdown(name,'Server')
             start(name,'Server')
@@ -360,7 +362,7 @@ for (( i=0;i<$ELEMENTS;i++)); do
     echo "ARG[${args[${i}]}]"
 done
 
-if [ $# -lt 9 ]
+if [ $# -lt 14 ]
 then
     usage
     exit 1
@@ -374,42 +376,44 @@ export wlsPassword=$4
 export oracleHome=$5
 export wlsDomainPath=$6
 
-export managedServerPrefix=${7};
+export managedServerVMName="${7}"
 
-export numberOfExistingNodes="${8}"
+export managedServerPrefix=${8}
 
-export isCoherenceEnabled="${9}"
+export numberOfExistingNodes="${9}"
+
+export isCoherenceEnabled="${10}"
 isCoherenceEnabled="${isCoherenceEnabled,,}"
 
-export vmIndex="${10}"
+export vmIndex="${11}"
 
 if [ $vmIndex == 0 ];
 then
-    wlsServerName="admin";
+    wlsServerName="admin"
 else
-    wlsServerName="$managedServerPrefix$vmIndex";
+    wlsServerName="$managedServerPrefix$vmIndex"
 fi
 
 echo "ServerName: $wlsServerName"
 
-export enableAAD="${11}"
+export enableAAD="${12}"
 enableAAD="${enableAAD,,}"
 
-export wlsADSSLCer="${12}"
+export wlsADSSLCer="${13}"
 
-export isCustomSSLEnabled="${13}"
+export isCustomSSLEnabled="${14}"
 isCustomSSLEnabled="${isCustomSSLEnabled,,}"
 
 if [ "${isCustomSSLEnabled,,}" == "true" ];
 then
-    export customIdentityKeyStoreBase64String="${14}"
-    export customIdentityKeyStorePassPhrase="${15}"
-    export customIdentityKeyStoreType="${16}"
-    export customTrustKeyStoreBase64String="${17}"
-    export customTrustKeyStorePassPhrase="${18}"
-    export customTrustKeyStoreType="${19}"
-    export privateKeyAlias="${20}"
-    export privateKeyPassPhrase="${21}"
+    export customIdentityKeyStoreBase64String="${15}"
+    export customIdentityKeyStorePassPhrase="${16}"
+    export customIdentityKeyStoreType="${17}"
+    export customTrustKeyStoreBase64String="${18}"
+    export customTrustKeyStorePassPhrase="${19}"
+    export customTrustKeyStoreType="${20}"
+    export privateKeyAlias="${21}"
+    export privateKeyPassPhrase="${22}"
 fi
 
 export wlsAdminPort=7001
