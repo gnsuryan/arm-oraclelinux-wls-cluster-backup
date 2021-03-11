@@ -106,10 +106,10 @@ function cleanup()
     echo "Cleanup completed."
 }
 
-#This function to add machine for a given managed server
+#configure SSL
 function configureSSL()
 {
-    echo "Configuring SSL on Admin Server: $wlsServerName"
+    echo "Configuring SSL on Server: $wlsServerName"
     cat <<EOF >$wlsDomainPath/configureSSL.py
 
 isCustomSSLEnabled='${isCustomSSLEnabled}'
@@ -154,7 +154,6 @@ if [[ $? != 0 ]]; then
 fi
 
 }
-
 
 #This function to wait for admin server 
 function wait_for_admin()
@@ -366,6 +365,7 @@ then
     usage
     exit 1
 fi
+export wlsServerName="admin"
 
 export adminVMName=$1
 export wlsDomainName=$2
@@ -374,37 +374,48 @@ export wlsPassword=$4
 export oracleHome=$5
 export wlsDomainPath=$6
 
-export numberOfExistingNodes="${7}"
+export managedServerPrefix=${7};
 
-export isCoherenceEnabled="${8}"
+export numberOfExistingNodes="${8}"
+
+export isCoherenceEnabled="${9}"
 isCoherenceEnabled="${isCoherenceEnabled,,}"
 
-export vmIndex="${9}"
+export vmIndex="${10}"
 
-export enableAAD="${10}"
+if [ $vmIndex == 0 ];
+then
+    wlsServerName="admin";
+else
+    wlsServerName="$managedServerPrefix$vmIndex";
+fi
+
+echo "ServerName: $wlsServerName"
+
+export enableAAD="${11}"
 enableAAD="${enableAAD,,}"
 
-export wlsADSSLCer="${11}"
+export wlsADSSLCer="${12}"
 
-export isCustomSSLEnabled="${12}"
+export isCustomSSLEnabled="${13}"
 isCustomSSLEnabled="${isCustomSSLEnabled,,}"
 
 if [ "${isCustomSSLEnabled,,}" == "true" ];
 then
-    export customIdentityKeyStoreBase64String="${13}"
-    export customIdentityKeyStorePassPhrase="${14}"
-    export customIdentityKeyStoreType="${15}"
-    export customTrustKeyStoreBase64String="${16}"
-    export customTrustKeyStorePassPhrase="${17}"
-    export customTrustKeyStoreType="${18}"
-    export privateKeyAlias="${19}"
-    export privateKeyPassPhrase="${20}"
+    export customIdentityKeyStoreBase64String="${14}"
+    export customIdentityKeyStorePassPhrase="${15}"
+    export customIdentityKeyStoreType="${16}"
+    export customTrustKeyStoreBase64String="${17}"
+    export customTrustKeyStorePassPhrase="${18}"
+    export customTrustKeyStoreType="${19}"
+    export privateKeyAlias="${20}"
+    export privateKeyPassPhrase="${21}"
 fi
 
 export wlsAdminPort=7001
 export wlsAdminChannelPort=7005
 export wlsAdminURL="$adminVMName:$wlsAdminChannelPort"
-export wlsServerName="admin"
+
 export username="oracle"
 export groupname="oracle"
 
@@ -428,9 +439,13 @@ then
     restartAdminServerService
     wait_for_admin
 else
+    #wait for 5 minutes so that admin server would have got configured with SSL and started.
+    sleep 5m
     wait_for_admin
+    configureSSL
     configureNodeManagerSSL
     restartNodeManagerService
+    wait_for_admin
     restartManagedServer
 fi
 
