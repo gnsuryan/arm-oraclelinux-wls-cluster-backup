@@ -199,13 +199,13 @@ function shutdown_admin() {
     count=1
     export CHECK_URL="http://$wlsAdminURL/weblogic/ready"
     status=$(curl --insecure -ILs $CHECK_URL | tac | grep -m1 HTTP/1.1 | awk {'print $2'})
-    echo "Check admin server status"
+    echo "Check admin server status: $status"
     while [[ "$status" == "200" ]]; do
-        echo "."
+        echo "stopping admin server . $count"
         count=$((count + 1))
         sudo systemctl stop wls_admin
-        if [ $count -le 30 ]; then
-            sleep 1m
+        if [ $count -le 10 ]; then
+            sleep 3m
         else
             echo "Error : Maximum attempts exceeded while stopping admin server"
             exit 1
