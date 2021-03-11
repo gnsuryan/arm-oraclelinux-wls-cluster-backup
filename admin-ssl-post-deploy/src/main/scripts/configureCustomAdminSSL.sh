@@ -193,6 +193,31 @@ do
 done  
 }
 
+# shutdown admin server
+function shutdown_admin() {
+    #check admin server status
+    count=1
+    export CHECK_URL="http://$wlsAdminURL/weblogic/ready"
+    status=$(curl --insecure -ILs $CHECK_URL | tac | grep -m1 HTTP/1.1 | awk {'print $2'})
+    echo "Check admin server status"
+    while [[ "$status" == "200" ]]; do
+        echo "."
+        count=$((count + 1))
+        sudo systemctl stop wls_admin
+        if [ $count -le 30 ]; then
+            sleep 1m
+        else
+            echo "Error : Maximum attempts exceeded while stopping admin server"
+            exit 1
+        fi
+        status=$(curl --insecure -ILs $CHECK_URL | tac | grep -m1 HTTP/1.1 | awk {'print $2'})
+        if [ -z ${status} ]; then
+            echo "WebLogic Server is stop..."
+            break
+        fi
+    done
+}
+
 function parseLDAPCertificate()
 {
     echo "create key store"
@@ -289,7 +314,7 @@ function parseAndSaveCustomSSLKeyStoreData()
 function restartAdminServerService()
 {
      echo "Restart weblogic admin server service"
-     sudo systemctl stop wls_admin
+     shutdown_admin
      sudo systemctl start wls_admin
 }
 
